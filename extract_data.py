@@ -8,7 +8,7 @@ import sqlite3
 
 def unzip_and_read(zip_path: str,
                    data_file: str,
-                   types_file: str) -> [pd.DataFrame, pd.DataFrame]:
+                   types_file: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Unzip a compressed file into a temporary directory,
     read the files contained in the zip and matches it to
