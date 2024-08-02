@@ -6,6 +6,44 @@ import argparse
 import sqlite3
 
 
+def extract_types_dict(zip_path: str,
+                       types_file: str) -> dict:
+    """
+    Unzip a compressed file into a temporary directory,
+    find the types file and transforms it into a dict.
+
+    Args:
+        zip_path: path to zip file
+        types_file: types file name
+    Returns:
+        Dictionary mapping id to type name
+    Raises:
+        ValueError, FileNotFoundError
+    """
+    if not zip_path.endswith(".zip"):
+        raise ValueError(f"{zip_path} is not a .zip file.")
+    if not types_file.endswith(".csv"):
+        raise ValueError(f"{types_file} is not a .csv file.")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        files = os.listdir(temp_dir)
+
+        types_df = pd.DataFrame()
+
+        for file in files:
+            if file == types_file:
+                file_path = os.path.join(temp_dir, file)
+                types_df = pd.read_csv(file_path)
+
+        if types_df.size == 0:
+            raise FileNotFoundError(f"{types_file} not found inside zip.")
+
+        return dict(zip(types_df['id'], types_df['nome']))
+
+
 def unzip_and_read(zip_path: str,
                    data_file: str,
                    types_file: str) -> tuple[pd.DataFrame, pd.DataFrame]:
